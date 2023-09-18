@@ -1,1 +1,103 @@
-Мир, камон
+# -*- coding: cp1251 -*-
+#python (практическая)
+import math 
+
+while True:
+    print ("Выберите операцию: ")
+    print ("1. Сложение (+); ")
+    print ("2. Вычитание (-); ")
+    print ("3. Умножение (*); ")
+    print ("4. Деление (/); ")
+    print ("5. Возведение в степень (**); ")
+    print ("6. Корень (sqrt); ")
+    print ("7. Факториал (fact); ")
+    print ("8. Синус (sin); ")
+    print ("9. Косинус (cos); ")
+    print ("10. Тангенс (tan); ")
+    print ("0. Выход из программы (exit). ")
+
+    a = input ("Введите номер операции: ")
+
+    if a == "0":
+        break
+
+    if a in ["1", "2", "3", "4"]:
+        while True:
+            num1 = input ("Введите первое число: ")
+            num2 = input ("Введите второе число: ")
+
+            if num1.replace(".", "", 1).isdigit() and num2.replace(".", "", 1).isdigit():
+                num1 = float(num1)
+                num2 = float(num2)
+                break
+            else:
+                print ("Ошибка")
+
+        if a == "1":
+            b = num1 + num2
+            print ("Ответ: ", b)
+
+        if a == "2":
+            b = num1 - num2
+            print ("Ответ: ", b)
+
+        if a == "3":
+            b = num1 * num2
+            print ("Ответ: ", b)
+
+        if a == "4":
+            if num2 == 0:
+                print ("Ошибка, делить на 0 нельзя")
+            else:
+                b = num1 / num2
+                print ("Ответ: ", b)
+
+    elif a in ["5", "6", "7", "8", "9", "10"]:
+        while True:
+            num3 = input ("Введите число: ")
+
+            if num3.replace(".", "", 1).isdigit():
+                num3 = float(num3)
+                break
+            else:
+                print ("Ошибка")
+
+        if a == "5":
+            c = input ("Введите степень: ")
+
+            if c.replace(".", "", 1).isdigit():
+               c = float(c)
+               b = math.pow(num3, c)
+               print ("Результат: ", b)
+            else:
+                print ("Ошибка ввода степени")
+
+        elif a == "6":
+            if num3 < 0:
+                print ("Ошибка, недопускается корень из отрицательного числа")
+            else:
+                c = math.sqrt(num3)
+                print("Ответ: ", c)
+
+        elif a == "7":
+            if num3 < 0:
+                print ("Ошибка, недопускается факториал отрицательного числа")
+            else: 
+                c = math.factorial(int(num3))
+                print ("Ответ: ", c)
+
+        elif a == "8":
+            c = math.sin(math.radians(num3))
+            print ("Ответ (в радианах): ", c)
+
+        elif a == "9":
+            c = math.cos(math.radians(num3))
+            print ("Ответ (в радианах): ", c)
+
+        elif a == "10":
+            c = math.tan(math.radians(num3))
+            print ("Ответ (в радианах): ", c)
+    else:
+        print ("Ошибка, выберите операцию")
+
+    print ()
