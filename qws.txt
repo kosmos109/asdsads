@@ -1,1 +1,71 @@
-qws
+#-*- coding: cp1251 -*-
+import random
+
+def intro():
+    print("Вы просыпаетесь в маленькой комнате, не помня, как тут оказались...")
+    print("Ваша цель - выбраться из комнаты!")
+
+def choose_action():
+    # Функция, позволяющая игроку выбрать действие
+    print("Что вы хотите сделать?")
+    print("1. Осмотреться в комнате")
+    print("2. Попытаться открыть дверь")
+    print("3. Попытаться взломать кодовый замок")
+    action = input("Введите число: ")
+    return action
+
+def examine_room():
+    print("Вы внимательно смотрите вокруг себя...")
+    print("Очень грязно(")
+   
+
+def open_door():
+    print("Вы пытаетесь открыть дверь...")
+
+def hack_lock():
+    print("Вы пытаетесь взломать кодовый замок...")
+
+def main_game():
+    intro()
+    while True:
+        action = choose_action()
+        if action == "1":
+            examine_room()
+        elif action == "2":
+            open_door()
+        elif action == "3":
+            hack_lock()
+        else:
+            print("Кажется, это неправильное действие. Попробуйте еще раз.")
+def examine_room():
+    print("Вы внимательно смотрите вокруг себя...")
+    items = ["ключ", "компас", "записка"]
+    print("Вы находите следующие предметы:", items)
+    player_inventory.extend(items)
+    print("Вы добавляете все найденные предметы в свой инвентарь.")
+    print("Ваш инвентарь сейчас:", player_inventory)
+
+def open_door():
+    print("Вы пытаетесь открыть дверь...")
+    if "ключ" in player_inventory:
+        print("Поздравляю! Вы нашли ключ в своем инвентаре и смогли открыть дверь!")
+        game_over()
+    else:
+        print("К сожалению, у вас нет ключа... Вам нужно найти его!")
+
+def hack_lock():
+    print("Вы пытаетесь взломать кодовый замок...")
+    code = input("Введите код: ")
+    correct_codes = {"1234", "5678", "0000"}
+    if code in correct_codes:
+        print("Поздравляю! Вы взломали кодовый замок!")
+        game_over()
+    else:
+        print("Кажется, вы ввели неправильный код. Попробуйте еще раз.")
+
+def game_over():
+    print("Спасибо за игру! Надеюсь, вы поставите мне 5 за такую офигенную новеллу.")
+
+player_inventory = []
+
+main_game()
