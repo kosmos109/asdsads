@@ -1,101 +1,106 @@
 using System;
 using System.Collections.Generic;
 
-namespace DailyPlanner
+public class Note
 {
-    class Program
+    public string zametka { get; set; }
+    public string opis { get; set; }
+    public DateTime Date { get; set; }
+    public DateTime DueDate { get; set; }
+}
+
+public class nachalo
+{
+    private List<Note> notes;
+    private int currentIndex;
+
+    public nachalo()
     {
-        static List<Note> notes;
-        static int currentNoteIndex;
+        notes = new List<Note>();
+        // даты
+        notes.Add(new Note { zametka = "Заметка 1", opis = "Прийти на пары (по желанию)", Date = new DateTime(2023, 10, 17), DueDate = new DateTime(2023, 10, 17) });
+        notes.Add(new Note { zametka = "Заметка 2", opis = "Поесть (обязательно)", Date = new DateTime(2023, 10, 19), DueDate = new DateTime(2023, 10, 19) });
+        notes.Add(new Note { zametka = "Заметка 3", opis = "Поспать (100 процентов обязательно)", Date = new DateTime(2023, 10, 21), DueDate = new DateTime(2023, 10, 21) });
 
-        static void Main(string[] args)
+        currentIndex = 0;
+    }
+    public void Startuy() // основа
+    {
+        Console.CursorVisible = false;
+
+        while (true)
         {
+            Console.Clear();
+            Menushkaa();
+            Detailsss();
 
-            notes = new List<Note>();
-            notes.Add(new Note("Заметка 1", "Описание 1", new DateTime(2022, 1, 6)));
-            notes.Add(new Note("Заметка 2", "Описание 2", new DateTime(2022, 1, 8)));
-            notes.Add(new Note("Заметка 3", "Описание 3", new DateTime(2022, 1, 13)));
+            var key = Console.ReadKey(true).Key;
 
-            currentNoteIndex = 0;
-
-            while (true)
+            switch (key)
             {
-                Console.Clear();
-                PrintMenu();
-                var key = Console.ReadKey();
-                Console.Clear();
-
-                switch (key.Key)
-                {
-                    case ConsoleKey.LeftArrow:
-                        SwitchNoteLeft();
-                        break;
-                    case ConsoleKey.RightArrow:
-                        SwitchNoteRight();
-                        break;
-                    case ConsoleKey.Enter:
-                        ShowNoteDetails();
-                        break;
-                }
+                case ConsoleKey.LeftArrow:
+                    if (currentIndex > 0)
+                        currentIndex--;
+                    break;
+                case ConsoleKey.RightArrow:
+                    if (currentIndex < notes.Count - 1)
+                        currentIndex++;
+                    break;
+                case ConsoleKey.Enter:
+                    opendet();
+                    Console.ReadKey();
+                    break;
+                case ConsoleKey.Escape:
+                    return;
             }
-        }
-
-        static void PrintMenu()
-        {
-            var currentNote = notes[currentNoteIndex];
-            Console.WriteLine("----- Ежедневник -----");
-            Console.WriteLine();
-            Console.WriteLine("Дата: " + currentNote.Date.ToShortDateString());
-            Console.WriteLine();
-
-            foreach (var note in notes)
-            {
-                Console.WriteLine(note.Title);
-            }
-        }
-
-        static void SwitchNoteLeft()
-        {
-            currentNoteIndex--;
-            if (currentNoteIndex < 0)
-                currentNoteIndex = notes.Count - 1;
-        }
-
-        static void SwitchNoteRight()
-        {
-            currentNoteIndex++;
-            if (currentNoteIndex >= notes.Count)
-                currentNoteIndex = 0;
-        }
-
-        static void ShowNoteDetails()
-        {
-            var currentNote = notes[currentNoteIndex];
-            Console.WriteLine("----- Детали заметки -----");
-            Console.WriteLine();
-            Console.WriteLine("Название: " + currentNote.Title);
-            Console.WriteLine("Описание: " + currentNote.Description);
-            Console.WriteLine("Дата: " + currentNote.Date.ToLongDateString());
-            Console.WriteLine("Выполнить к: " + currentNote.DueDate.ToLongDateString());
-            Console.WriteLine();
-            Console.WriteLine("Нажмите Enter для продолжения...");
-            Console.ReadLine();
         }
     }
 
-    class Note
+    private void Menushkaa() // основа 2
     {
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public DateTime Date { get; set; }
-        public DateTime DueDate { get; set; }
+        Console.WriteLine("--------------Мой ежедневник--------------\n");
 
-        public Note(string title, string description, DateTime date)
+        for (int i = 0; i < notes.Count; i++)
         {
-            Title = title;
-            Description = description;
-            Date = date;
-            DueDate = date;
+            if (i == currentIndex)
+                Console.Write("--->");
+            else
+                Console.Write("  ");
+
+            Console.WriteLine(notes[i].zametka);
         }
+
+        Console.WriteLine("\n Cтрелки (<- и ->) влеов и вправо для переключения;");
+        Console.WriteLine("\n Enter, чтобы посмотреть заметку");
+        Console.WriteLine("\n И Escape с целью выйти из прекрасного кода");
+        Console.WriteLine("\n Кстати, заметки написаны еще и снизу");
+        Console.WriteLine("\n ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓");
+    }
+
+    private void Detailsss() //
+    {
+        Console.WriteLine($"\n\nДата: {notes[currentIndex].Date.ToShortDateString()}");
+        Console.WriteLine($"Срок выполнения: {notes[currentIndex].DueDate.ToShortDateString()}");
+        Console.WriteLine($"Описание: {notes[currentIndex].opis}");
+    }
+
+    private void opendet() // не забудь
+    {
+        Console.Clear();
+        Console.WriteLine($"\n{notes[currentIndex].zametka}\n");
+        Console.WriteLine($"Дата: {notes[currentIndex].Date.ToShortDateString()}");
+        Console.WriteLine($"Срок выполнения: {notes[currentIndex].DueDate.ToShortDateString()}");
+        Console.WriteLine($"Описание: {notes[currentIndex].opis}");
+    }
+}
+
+ 
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        nachalo planner = new nachalo();
+        planner.Startuy();
     }
 }
