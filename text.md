@@ -10,11 +10,11 @@ class Program
         { ConsoleKey.F3, new int[] { 800, 900, 1000 } }
     };
 
-    static int[] currentOctave;
+    static int[] octava;
 
     static void Main(string[] args)
     {
-        currentOctave = octaves[ConsoleKey.F1]; 
+        octava = octaves[ConsoleKey.F1];
         Console.WriteLine("Пианино");
 
         while (true)
@@ -29,7 +29,7 @@ class Program
                     ChangeOctave(keyInfo.Key);
                     break;
                 default:
-                    PlaySound();
+                    igrat();
                     break;
             }
         }
@@ -37,14 +37,14 @@ class Program
 
     static void ChangeOctave(ConsoleKey octaveKey)
     {
-        currentOctave = octaves[octaveKey];
+        octava = octaves[octaveKey];
         Console.WriteLine($"Переключение на октаву {octaveKey}");
     }
 
-    static void PlaySound()
+    static void igrat()
     {
-        Console.Beep(currentOctave[0], 500);
-        Console.Beep(currentOctave[1], 500);
-        Console.Beep(currentOctave[2], 500);
+        Console.Beep(octava[0], 500);
+        Console.Beep(octava[1], 500);
+        Console.Beep(octava[2], 500);
     }
 }
