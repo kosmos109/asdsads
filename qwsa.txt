@@ -5,7 +5,7 @@ class Program
     static void Main(string[] args)
     {
         int choice = 0;
-        
+
         while (choice != 4)
         {
             Console.WriteLine("Меню:");
@@ -14,19 +14,19 @@ class Program
             Console.WriteLine("3. Вывод делителей числа");
             Console.WriteLine("4. Выйти");
             Console.Write("Введите число: ");
-            
+
             choice = Convert.ToInt32(Console.ReadLine());
-            
+
             switch (choice)
             {
                 case 1:
-                    GuessNumberGame();
+                    chiclo();
                     break;
                 case 2:
-                    MultiplicationTable();
+                    tabl();
                     break;
                 case 3:
-                    PrintDivisors();
+                    vivod();
                     break;
                 case 4:
                     Console.WriteLine("Выход из программы");
@@ -35,45 +35,45 @@ class Program
                     Console.WriteLine("Неправильный выбор");
                     break;
             }
-            
+
             Console.WriteLine();
         }
     }
-    
-    static void GuessNumberGame()
+
+    static void chiclo()
     {
         Random random = new Random();
-        int randomNumber = random.Next(0, 101);
-        
+        int randomnumb = random.Next(0, 101);
+
         Console.WriteLine("Игра 'Угадай число'");
-        Console.WriteLine("Я загадал число от 0 до 100. Попробуйте угадать!");
-        
-        int guessedNumber = -1;
-        
-        while (guessedNumber != randomNumber)
+        Console.WriteLine("Я загадал число от 0 до 100, сможете угадать?");
+
+        int defchic = -1;
+
+        while (defchic != randomnumb)
         {
             Console.Write("Введите число: ");
-            guessedNumber = Convert.ToInt32(Console.ReadLine());
-            
-            if (guessedNumber < randomNumber)
+            defchic = Convert.ToInt32(Console.ReadLine());
+
+            if (defchic < randomnumb)
             {
                 Console.WriteLine("Загаданное число больше");
             }
-            else if (guessedNumber > randomNumber)
+            else if (defchic > randomnumb)
             {
                 Console.WriteLine("Загаданное число меньше");
             }
         }
-        
+
         Console.WriteLine("Поздравляю! Вы угадали число!");
     }
-    
-    static void MultiplicationTable()
+
+    static void tabl()
     {
         Console.WriteLine("Таблица умножения");
-        
+
         int[,] table = new int[10, 10];
-        
+
         for (int i = 1; i <= 10; i++)
         {
             for (int j = 1; j <= 10; j++)
@@ -81,30 +81,30 @@ class Program
                 table[i - 1, j - 1] = i * j;
             }
         }
-        
+
         for (int i = 0; i < 10; i++)
         {
             for (int j = 0; j < 10; j++)
             {
                 Console.Write(table[i, j] + "\t");
             }
-            
+
             Console.WriteLine();
         }
     }
-    
-    static void PrintDivisors()
+
+    static void vivod()
     {
         Console.WriteLine("Вывод делителей числа");
         Console.Write("Введите число: ");
-        
-        int number = Convert.ToInt32(Console.ReadLine());
-        
-        Console.Write("Делители числа {0}: ", number);
-        
-        for (int i = 1; i <= number; i++)
+
+        int numb = Convert.ToInt32(Console.ReadLine());
+
+        Console.Write("Делители числа {0}: ", numb);
+
+        for (int i = 1; i <= numb; i++)
         {
-            if (number % i == 0)
+            if (numb % i == 0)
             {
                 Console.Write(i + " ");
             }
