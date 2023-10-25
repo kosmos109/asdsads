@@ -1,106 +1,159 @@
 using System;
 using System.Collections.Generic;
 
-public class Note
+class Note
 {
-    public string zametka { get; set; }
-    public string opis { get; set; }
+    public string Title { get; set; }
+    public string Description { get; set; }
     public DateTime Date { get; set; }
-    public DateTime DueDate { get; set; }
+
+    public Note(string title, string description, DateTime date)
+    {
+        Title = title;
+        Description = description;
+        Date = date;
+    }
 }
 
-public class nachalo
+class DailyPlanner
 {
-    private List<Note> notes;
-    private int currentIndex;
+    private List<Note> notes = new List<Note>();
+    private int currentIndex = 0;
 
-    public nachalo()
+    public DailyPlanner()
     {
-        notes = new List<Note>();
-        // даты
-        notes.Add(new Note { zametka = "Заметка 1", opis = "Прийти на пары (по желанию)", Date = new DateTime(2023, 10, 17), DueDate = new DateTime(2023, 10, 17) });
-        notes.Add(new Note { zametka = "Заметка 2", opis = "Поесть (обязательно)", Date = new DateTime(2023, 10, 19), DueDate = new DateTime(2023, 10, 19) });
-        notes.Add(new Note { zametka = "Заметка 3", opis = "Поспать (100 процентов обязательно)", Date = new DateTime(2023, 10, 21), DueDate = new DateTime(2023, 10, 21) });
-
-        currentIndex = 0;
+        // Инициализация примерами заметок
+        notes.Add(new Note("Заметка 1", "Поесть (обязательно)", new DateTime(2023, 10, 12)));
+        notes.Add(new Note("Заметка 2", "Выучить с#", new DateTime(2023, 10, 13)));
+        notes.Add(new Note("Заметка 3", "Сделать 20 подтягиваний (по желанию)", new DateTime(2023, 10, 14)));
+        notes.Add(new Note("Заметка 4", "Поспать (если вы не студент)", new DateTime(2023, 10, 15)));
+        notes.Add(new Note("Заметка 5", "Создать свой личный c# (обязательно)", new DateTime(2023, 10, 16)));
     }
-    public void Startuy() // основа
-    {
-        Console.CursorVisible = false;
 
-        while (true)
+    public void StartPlanner()
+    {
+        bool isRunning = true;
+        while (isRunning)
         {
             Console.Clear();
-            Menushkaa();
-            Detailsss();
-
+            PrintNotes();
+            Console.WriteLine("Используйте стрелки (лево) ← → (вправо) для переключения между заметками. Нажмите Enter для подробной информации.");
+            Console.WriteLine("Для редактирования текущей заметки нажмите Q. Для добавления новой заметки нажмите W. Нажмите Escape для выхода.");
             var key = Console.ReadKey(true).Key;
-
             switch (key)
             {
                 case ConsoleKey.LeftArrow:
-                    if (currentIndex > 0)
-                        currentIndex--;
+                    MoveToPreviousNote();
                     break;
                 case ConsoleKey.RightArrow:
-                    if (currentIndex < notes.Count - 1)
-                        currentIndex++;
+                    MoveToNextNote();
                     break;
                 case ConsoleKey.Enter:
-                    opendet();
-                    Console.ReadKey();
+                    ShowDetailedNote();
+                    break;
+                case ConsoleKey.Q:
+                    EditNote();
+                    break;
+                case ConsoleKey.W:
+                    AddNewNote();
                     break;
                 case ConsoleKey.Escape:
-                    return;
+                    isRunning = false;
+                    break;
             }
         }
     }
 
-    private void Menushkaa() // основа 2
+    private void PrintNotes()
     {
-        Console.WriteLine("--------------Мой ежедневник--------------\n");
-
         for (int i = 0; i < notes.Count; i++)
         {
             if (i == currentIndex)
-                Console.Write("--->");
-            else
-                Console.Write("  ");
+            {
+                Console.BackgroundColor = ConsoleColor.Gray;
+                Console.ForegroundColor = ConsoleColor.Black;
+            }
 
-            Console.WriteLine(notes[i].zametka);
+            Console.Write($"[{notes[i].Date.ToShortDateString()}] {notes[i].Title}    ");
+
+            if (i == currentIndex)
+            {
+                Console.ResetColor();
+            }
         }
-
-        Console.WriteLine("\n Cтрелки (<- и ->) влеов и вправо для переключения;");
-        Console.WriteLine("\n Enter, чтобы посмотреть заметку");
-        Console.WriteLine("\n И Escape с целью выйти из прекрасного кода");
-        Console.WriteLine("\n Кстати, заметки написаны еще и снизу");
-        Console.WriteLine("\n ↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓↓");
+        Console.WriteLine();
     }
 
-    private void Detailsss() //
-    {
-        Console.WriteLine($"\n\nДата: {notes[currentIndex].Date.ToShortDateString()}");
-        Console.WriteLine($"Срок выполнения: {notes[currentIndex].DueDate.ToShortDateString()}");
-        Console.WriteLine($"Описание: {notes[currentIndex].opis}");
-    }
-
-    private void opendet() // не забудь
+    private void ShowDetailedNote()
     {
         Console.Clear();
-        Console.WriteLine($"\n{notes[currentIndex].zametka}\n");
+        Console.WriteLine($"Название: {notes[currentIndex].Title}");
         Console.WriteLine($"Дата: {notes[currentIndex].Date.ToShortDateString()}");
-        Console.WriteLine($"Срок выполнения: {notes[currentIndex].DueDate.ToShortDateString()}");
-        Console.WriteLine($"Описание: {notes[currentIndex].opis}");
+        Console.WriteLine($"Описание: {notes[currentIndex].Description}");
+        Console.WriteLine("Нажмите Escape для возврата к списку заметок.");
+        while (Console.ReadKey(true).Key != ConsoleKey.Escape) { }
+    }
+
+    private void MoveToPreviousNote()
+    {
+        if (currentIndex > 0)
+        {
+            currentIndex--;
+        }
+        else
+        {
+            currentIndex = notes.Count - 1;
+        }
+    }
+
+    private void MoveToNextNote()
+    {
+        if (currentIndex < notes.Count - 1)
+        {
+            currentIndex++;
+        }
+        else
+        {
+            currentIndex = 0;
+        }
+    }
+
+    private void EditNote()
+    {
+        Console.Clear();
+        Console.WriteLine("Введите новое название:");
+        string newTitle = Console.ReadLine();
+        Console.WriteLine("Введите новое описание:");
+        string newDescription = Console.ReadLine();
+        notes[currentIndex].Title = newTitle;
+        notes[currentIndex].Description = newDescription;
+        Console.WriteLine("Заметка успешно отредактирована. Нажмите любую клавишу для продолжения.");
+        Console.ReadKey(true);
+    }
+    private void AddNewNote()
+    {
+        Console.Clear();
+        Console.WriteLine("Введите название новой заметки:");
+        string newTitle = Console.ReadLine();
+        Console.WriteLine("Введите описание новой заметки:");
+        string newDescription = Console.ReadLine();
+        Console.WriteLine("Введите дату новой заметки (гггг-мм-дд):");
+        DateTime newDate;
+        while (!DateTime.TryParse(Console.ReadLine(), out newDate))
+        {
+            Console.WriteLine("Некорректный формат даты. Пожалуйста, введите дату в формате (гггг-мм-дд):");
+        }
+        notes.Add(new Note(newTitle, newDescription, newDate));
+        Console.WriteLine("Новая заметка успешно добавлена. Нажмите любую клавишу для продолжения.");
+        Console.ReadKey(true);
     }
 }
-
- 
 
 class Program
 {
     static void Main(string[] args)
     {
-        nachalo planner = new nachalo();
-        planner.Startuy();
+        DailyPlanner planner = new DailyPlanner();
+        planner.StartPlanner();
     }
 }
