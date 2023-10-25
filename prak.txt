@@ -1,154 +1,154 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 
-class Calculator
+class CakeOrder
 {
-    static void Main()
+    private Dictionary<string, string> orderDetails = new Dictionary<string, string>();
+    private Dictionary<string, List<string>> menuOptions = new Dictionary<string, List<string>>
     {
-        int operation = 0;
+        { "Форма торта", new List<string> { "Круглая", "Квадратная", "Сердце" } },
+        { "Размер торта", new List<string> { "Маленький", "Средний", "Большой" } },
+        { "Вкус торта", new List<string> { "Шоколадный", "Ванильный", "Фруктовый" } },
+        { "Глазурь торта", new List<string> { "Шоколадная", "Ванильная", "Фруктовая" } },
+        { "Декор торта", new List<string> { "Ягоды", "Цветы", "Шоколадные фигуры" } },
+    };
 
-        do
+    public void StartOrder()
+    {
+        bool isOrdering = true;
+
+        while (isOrdering)
         {
-            Console.WriteLine("Выберите действие:");
-            Console.WriteLine("1. Сложение");
-            Console.WriteLine("2. Вычитание");
-            Console.WriteLine("3. Умножение");
-            Console.WriteLine("4. Деление");
-            Console.WriteLine("5. Возведение в степень");
-            Console.WriteLine("6. Квадратный корень");
-            Console.WriteLine("7. Найти 1 процент");
-            Console.WriteLine("8. Факториал");
-            Console.WriteLine("9. Выход");
-
-            string input = Console.ReadLine();
-            if (!int.TryParse(input, out operation))
+            Console.Clear();
+            Console.WriteLine("Выберите пункт меню:");
+            int index = 1;
+            foreach (var option in menuOptions.Keys)
             {
-                Console.WriteLine("Ошибка! Введите число от 1 до 9.");
-                continue;
+                Console.WriteLine($"{index}. {option}");
+                index++;
             }
+            Console.WriteLine($"{index}. Завершить заказ и сохранить");
+            Console.WriteLine($"{index + 1}. Отменить заказ и выйти");
 
-            switch (operation)
+            var choice = Console.ReadKey(true).Key;
+            if (choice >= ConsoleKey.D1 && choice <= ConsoleKey.D0 + menuOptions.Count)
             {
-                case 1: // Сложение
-                    Console.Write("Введите первое число: ");
-                    double num1 = GetNumberFromInput();
-                    Console.Write("Введите второе число: ");
-                    double num2 = GetNumberFromInput();
-                    double sum = num1 + num2;
-                    Console.WriteLine("Сумма: " + sum);
-                    break;
+                int optionIndex = (int)choice - (int)ConsoleKey.D0 - 1;
+                string option = menuOptions.Keys.ToArray()[optionIndex];
+                ChooseOption(option);
+            }
+            else if (choice == ConsoleKey.D0 + menuOptions.Count + 1)
+            {
+                CompleteOrder();
+                isOrdering = false;
+            }
+            else if (choice == ConsoleKey.D0 + menuOptions.Count + 2)
+            {
+                Console.WriteLine("Заказ отменен.");
+                isOrdering = false;
+            }
+            else
+            {
+                Console.WriteLine("Неверный выбор. Пожалуйста, попробуйте снова.");
+            }
+        }
+    }
 
-                case 2: // Вычитание
-                    Console.Write("Введите первое число: ");
-                    num1 = GetNumberFromInput();
-                    Console.Write("Введите второе число: ");
-                    num2 = GetNumberFromInput();
-                    double difference = num1 - num2;
-                    Console.WriteLine("Разность: " + difference);
-                    break;
+    private void ChooseOption(string option)
+    {
+        Console.Clear();
+        Console.WriteLine($"Выберите {option.ToLower()}:");
+        int index = 1;
+        foreach (var subOption in menuOptions[option])
+        {
+            Console.WriteLine($"{index}. {subOption}");
+            index++;
+        }
 
-                case 3: // Умножение
-                    Console.Write("Введите первое число: ");
-                    num1 = GetNumberFromInput();
-                    Console.Write("Введите второе число: ");
-                    num2 = GetNumberFromInput();
-                    double product = num1 * num2;
-                    Console.WriteLine("Произведение: " + product);
-                    break;
+        var choice = Console.ReadKey(true).Key;
+        if (choice >= ConsoleKey.D1 && choice <= ConsoleKey.D0 + menuOptions[option].Count)
+        {
+            int subOptionIndex = (int)choice - (int)ConsoleKey.D0 - 1;
+            string subOption = menuOptions[option][subOptionIndex];
+            orderDetails[option] = subOption;
+            Console.WriteLine($"{option}: {subOption} выбрано.");
+        }
+        else
+        {
+            Console.WriteLine("Неверный выбор. Пожалуйста, попробуйте снова.");
+        }
+        Console.WriteLine("Информация сохранена, нажмите любую кнопку, чтобы выйти в меню");
+        Console.ReadKey();
+    }
 
-                case 4: // Деление
-                    Console.Write("Введите первое число: ");
-                    num1 = GetNumberFromInput();
-                    Console.Write("Введите второе число: ");
-                    num2 = GetNumberFromInput();
-                    if (num2 == 0)
-                    {
-                        Console.WriteLine("Ошибка! Деление на 0 невозможно.");
-                        break;
-                    }
-                    double quotient = num1 / num2;
-                    Console.WriteLine("Частное: " + quotient);
-                    break;
+    private void CompleteOrder()
+    {
+        CalculateTotalPrice();
+        SaveOrderToFile();
+        Console.WriteLine("Заказ завершен. Информация сохранена.");
+    }
 
-                case 5: // Возведение в степень
-                    Console.Write("Введите число: ");
-                    num1 = GetNumberFromInput();
-                    Console.Write("Введите степень: ");
-                    int power = GetIntegerFromInput();
-                    double result = Math.Pow(num1, power);
-                    Console.WriteLine("Результат: " + result);
-                    break;
+    private void CalculateTotalPrice()
+    {
+        int totalPrice = 0;
+        foreach (var option in orderDetails.Keys)
+        {
+            // Не хотел делать акцент на ценах, пусть каждый выбранный пункт будет +50
+            totalPrice += 50;
+        }
+        orderDetails["Цена"] = totalPrice.ToString();
+    }
 
-                case 6: // Квадратный корень
-                    Console.Write("Введите число: ");
-                    num1 = GetNumberFromInput();
-                    if (num1 < 0)
-                    {
-                        Console.WriteLine("Ошибка! Извлечение корня из отрицательного числа невозможно.");
-                        break;
-                    }
-                    double sqrt = Math.Sqrt(num1);
-                    Console.WriteLine("Квадратный корень: " + sqrt);
-                    break;
+    private void SaveOrderToFile()
+    {
+        string fileName = "C:\\Users\\Коля\\Desktop\\Заказ.txt";
 
-                case 7: // Найти 1 процент
-                    Console.Write("Введите число: ");
-                    num1 = GetNumberFromInput();
-                    double percent = num1 / 100;
-                    Console.WriteLine("1% от числа: " + percent);
-                    break;
-                case 8: // Факториал
-                    Console.Write("Введите число: ");
-                    num1 = GetIntegerFromInput();
-                    long factorial = CalculateFactorial((int)num1);
-                    Console.WriteLine("Факториал: " + factorial);
-                    break;
+        try
+        {
+            using (StreamWriter writer = new StreamWriter(fileName, true))
+            {
+                foreach (var detail in orderDetails)
+                {
+                    writer.WriteLine($"{detail.Key}: {detail.Value}");
+                }
+                writer.WriteLine("------------------------------");
+            }
+        }
+        catch (IOException e)
+        {
+            Console.WriteLine($"Ошибка при сохранении заказа: {e.Message}");
+        }
+    }
+}
+class Program
+{
+    static void Main(string[] args)
+    {
+        CakeOrder cakeOrder = new CakeOrder();
+        bool isOrdering = true;
 
-                case 9: // Выход
-                    Console.WriteLine("Программа завершена.");
-                    break;
+        while (isOrdering)
+        {
+            Console.Clear();
+            Console.WriteLine("Приветствую вас в моей классной кондитерской!");
+            Console.WriteLine("1. Заказать тортик ");
+            Console.WriteLine("2. Выйти((");
 
+            var choice = Console.ReadKey(true).Key;
+            switch (choice)
+            {
+                case ConsoleKey.D1:
+                    cakeOrder.StartOrder();
+                    break;
+                case ConsoleKey.D2:
+                    isOrdering = false;
+                    Console.WriteLine("До свидания(((");
+                    break;
                 default:
-                    Console.WriteLine("Ошибка! Введите число от 1 до 9.");
+                    Console.WriteLine("Неверный выбор. Пожалуйста, попробуйте снова.");
                     break;
             }
-
-        } while (operation != 9);
-    }
-
-    static double GetNumberFromInput()
-    {
-        double number;
-        string input = Console.ReadLine();
-        while (!double.TryParse(input, out number))
-        {
-            Console.WriteLine("Ошибка! Введите число.");
-            input = Console.ReadLine();
         }
-        return number;
-    }
-
-    static int GetIntegerFromInput()
-    {
-        int number;
-        string input = Console.ReadLine();
-        while (!int.TryParse(input, out number))
-        {
-            Console.WriteLine("Ошибка! Введите целое число.");
-            input = Console.ReadLine();
-        }
-        return number;
-    }
-
-    static long CalculateFactorial(int n)
-    {
-        if (n == 0)
-            return 1;
-
-        long result = 1;
-        for (int i = 2; i <= n; i++)
-        {
-            result *= i;
-        }
-        return result;
     }
 }
