@@ -1,159 +1,152 @@
 using System;
 using System.Collections.Generic;
 
-class Note
-{
-    public string Title { get; set; }
-    public string Description { get; set; }
-    public DateTime Date { get; set; }
-
-    public Note(string title, string description, DateTime date)
-    {
-        Title = title;
-        Description = description;
-        Date = date;
-    }
-}
-
-class DailyPlanner
-{
-    private List<Note> notes = new List<Note>();
-    private int currentIndex = 0;
-
-    public DailyPlanner()
-    {
-        // Инициализация примерами заметок
-        notes.Add(new Note("Заметка 1", "Поесть (обязательно)", new DateTime(2023, 10, 12)));
-        notes.Add(new Note("Заметка 2", "Выучить с#", new DateTime(2023, 10, 13)));
-        notes.Add(new Note("Заметка 3", "Сделать 20 подтягиваний (по желанию)", new DateTime(2023, 10, 14)));
-        notes.Add(new Note("Заметка 4", "Поспать (если вы не студент)", new DateTime(2023, 10, 15)));
-        notes.Add(new Note("Заметка 5", "Создать свой личный c# (обязательно)", new DateTime(2023, 10, 16)));
-    }
-
-    public void StartPlanner()
-    {
-        bool isRunning = true;
-        while (isRunning)
-        {
-            Console.Clear();
-            PrintNotes();
-            Console.WriteLine("Используйте стрелки (лево) ← → (вправо) для переключения между заметками. Нажмите Enter для подробной информации.");
-            Console.WriteLine("Для редактирования текущей заметки нажмите Q. Для добавления новой заметки нажмите W. Нажмите Escape для выхода.");
-            var key = Console.ReadKey(true).Key;
-            switch (key)
-            {
-                case ConsoleKey.LeftArrow:
-                    MoveToPreviousNote();
-                    break;
-                case ConsoleKey.RightArrow:
-                    MoveToNextNote();
-                    break;
-                case ConsoleKey.Enter:
-                    ShowDetailedNote();
-                    break;
-                case ConsoleKey.Q:
-                    EditNote();
-                    break;
-                case ConsoleKey.W:
-                    AddNewNote();
-                    break;
-                case ConsoleKey.Escape:
-                    isRunning = false;
-                    break;
-            }
-        }
-    }
-
-    private void PrintNotes()
-    {
-        for (int i = 0; i < notes.Count; i++)
-        {
-            if (i == currentIndex)
-            {
-                Console.BackgroundColor = ConsoleColor.Gray;
-                Console.ForegroundColor = ConsoleColor.Black;
-            }
-
-            Console.Write($"[{notes[i].Date.ToShortDateString()}] {notes[i].Title}    ");
-
-            if (i == currentIndex)
-            {
-                Console.ResetColor();
-            }
-        }
-        Console.WriteLine();
-    }
-
-    private void ShowDetailedNote()
-    {
-        Console.Clear();
-        Console.WriteLine($"Название: {notes[currentIndex].Title}");
-        Console.WriteLine($"Дата: {notes[currentIndex].Date.ToShortDateString()}");
-        Console.WriteLine($"Описание: {notes[currentIndex].Description}");
-        Console.WriteLine("Нажмите Escape для возврата к списку заметок.");
-        while (Console.ReadKey(true).Key != ConsoleKey.Escape) { }
-    }
-
-    private void MoveToPreviousNote()
-    {
-        if (currentIndex > 0)
-        {
-            currentIndex--;
-        }
-        else
-        {
-            currentIndex = notes.Count - 1;
-        }
-    }
-
-    private void MoveToNextNote()
-    {
-        if (currentIndex < notes.Count - 1)
-        {
-            currentIndex++;
-        }
-        else
-        {
-            currentIndex = 0;
-        }
-    }
-
-    private void EditNote()
-    {
-        Console.Clear();
-        Console.WriteLine("Введите новое название:");
-        string newTitle = Console.ReadLine();
-        Console.WriteLine("Введите новое описание:");
-        string newDescription = Console.ReadLine();
-        notes[currentIndex].Title = newTitle;
-        notes[currentIndex].Description = newDescription;
-        Console.WriteLine("Заметка успешно отредактирована. Нажмите любую клавишу для продолжения.");
-        Console.ReadKey(true);
-    }
-    private void AddNewNote()
-    {
-        Console.Clear();
-        Console.WriteLine("Введите название новой заметки:");
-        string newTitle = Console.ReadLine();
-        Console.WriteLine("Введите описание новой заметки:");
-        string newDescription = Console.ReadLine();
-        Console.WriteLine("Введите дату новой заметки (гггг-мм-дд):");
-        DateTime newDate;
-        while (!DateTime.TryParse(Console.ReadLine(), out newDate))
-        {
-            Console.WriteLine("Некорректный формат даты. Пожалуйста, введите дату в формате (гггг-мм-дд):");
-        }
-        notes.Add(new Note(newTitle, newDescription, newDate));
-        Console.WriteLine("Новая заметка успешно добавлена. Нажмите любую клавишу для продолжения.");
-        Console.ReadKey(true);
-    }
-}
-
 class Program
 {
-    static void Main(string[] args)
+    static List<Note> notes = new List<Note>
     {
-        DailyPlanner planner = new DailyPlanner();
-        planner.StartPlanner();
+        new Note { Title = "Проснуться (по желанию)", Description = "Поехать в мпт (также, по желанию)", Date = new DateTime(2023, 10, 10) },
+        new Note { Title = "Сходить в зал (обязательно)", Description= "Надо пить протеин, а мышцы сами вырастут", Date = new DateTime(2023, 10,11) },
+        new Note { Title = "Сделать д/з (нет)", Description = "Лучше в зал", Date = new DateTime(2023, 10, 12) },
+        new Note { Title = "Выучить c#", Description = "Выучить c# и придумать новый", Date = new DateTime(2023, 10, 13) },
+        new Note { Title = "Поесть (обязательно)", Description = "Рис и курица", Date = new DateTime(2023, 10, 14) }
+    };
+
+    static int currentNoteIndex = 0;
+
+    static void Main()
+    {
+        Console.CursorVisible = false;
+
+        while (true)
+        {
+            Console.Clear();
+            ShowMenu();
+            HandleInput();
+        }
+    }
+
+    static void ShowMenu()
+    {
+        Console.WriteLine("Ежедневник");
+        Console.WriteLine("-----------");
+
+        for (int i = 0; i < notes.Count; i++)
+        {
+            if (i == currentNoteIndex)
+            {
+                Console.Write("--->");
+            }
+            else
+            {
+                Console.Write("   ");
+            }
+            Console.WriteLine($"{notes[i].Date.ToShortDateString()} - {notes[i].Title}");
+        }
+
+        Console.WriteLine("'добавить' для новой заметки, или 'удалить' для удаления,'редактировать' для редактирования");
+        Console.WriteLine("Нажмите enter, чтобы увидеть информацию о заметке");
+        Console.WriteLine("Используйте стрелки для навигации.");
+    }
+
+    static void ShowDetails()
+    {
+        Console.Clear();
+        Console.WriteLine("Подробная информация");
+        Console.WriteLine("--------------------");
+        Console.WriteLine($"Дата: {notes[currentNoteIndex].Date.ToShortDateString()}");
+        Console.WriteLine($"Название: {notes[currentNoteIndex].Title}");
+        Console.WriteLine($"Описание: {notes[currentNoteIndex].Description}");
+        Console.WriteLine("Нажмите enter для возврата к списку");
+        Console.ReadLine();
+    }
+
+    static void AddNote()
+    {
+        Console.Write("Введите название новой заметки: ");
+        string title = Console.ReadLine();
+        Console.Write("Введите описание новой заметки: ");
+        string description = Console.ReadLine();
+        Console.Write("Введите дату (гггг-мм-дд) новой заметки: ");
+        DateTime date = DateTime.Parse(Console.ReadLine());
+        notes.Add(new Note { Title = title, Description = description, Date = date });
+    }
+
+    static void EditNote()
+    {
+        Console.Write("Введите новое название: ");
+        notes[currentNoteIndex].Title = Console.ReadLine();
+        Console.Write("Введите новое описание: ");
+        notes[currentNoteIndex].Description = Console.ReadLine();
+        Console.Write("Введите новую дату (гггг-мм-дд): ");
+        notes[currentNoteIndex].Date = DateTime.Parse(Console.ReadLine());
+    }
+
+    static void DeleteNote()
+    {
+        notes.RemoveAt(currentNoteIndex);
+        if (currentNoteIndex >= notes.Count)
+        {
+            currentNoteIndex--;
+        }
+    }
+
+    static void HandleInput()
+    {
+        ConsoleKeyInfo key = Console.ReadKey(true);
+
+        if (key.Key == ConsoleKey.RightArrow)
+        {
+            if (currentNoteIndex < notes.Count - 1)
+            {
+                currentNoteIndex++;
+            }
+        }
+        else if (key.Key == ConsoleKey.LeftArrow)
+        {
+            if (currentNoteIndex > 0)
+            {
+                currentNoteIndex--;
+            }
+        }
+        else if (key.Key == ConsoleKey.Enter)
+        {
+            ShowDetails();
+        }
+        else
+        {
+            string input = Console.ReadLine().ToLower();
+
+            switch (input)
+            {
+                case "добавить":
+                    AddNote();
+                    break;
+                case "редактировать":
+                    EditNote();
+                    break;
+                case "удалить":
+                    DeleteNote();
+                    break;
+                default:
+                    if (int.TryParse(input, out int selectedIndex) && selectedIndex > 0 && selectedIndex <= notes.Count)
+                    {
+                        currentNoteIndex = selectedIndex - 1;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Неверный ввод.");
+                        Console.ReadLine();
+                    }
+                    break;
+            }
+        }
+    }
+
+    class Note
+    {
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime Date { get; set; }
     }
 }
