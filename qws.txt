@@ -8,14 +8,6 @@ taxes = 0
 penalties = 0
 actions_count = 0
 
-# Функция для отображения графика в текстовом формате
-def draw_stock_chart(prices):
-    print("График цен:")
-    for price in prices:
-        print("#" * price)
-    print("-" * len(prices) * 2)  # Ось X
-    print(" " + " ".join(map(str, range(1, len(prices) + 1))))  # Подписи оси X
-
 # Функция для задания случайного вопроса начальника
 def ask_boss_question():
     global money
@@ -45,19 +37,24 @@ def ask_boss_question():
     print("Варианты ответов:")
     for i, ans in enumerate(answers, start=1):
         print(f"{i}. {ans}")
-    choice = int(input("Выберите вариант ответа (введите номер): "))
-    selected_answer = answers[choice - 1] if 1 <= choice <= len(answers) else None
-    if selected_answer and selected_answer == correct_answer:
-        print("Правильно! Начальник доволен. Вы получаете бонус 100 000 тысяч.")
-        money += 100000
-        bank_balance += 100000
-    else:
-        print("Неправильно! Начальник разочарован. Вы получаете штраф в размере 50 000 тысяч.")
-        penalties += 50000
-        bank_balance -= 50000
-    print(f"Ваш баланс: {bank_balance} тысяч.")
-    actions_count += 1
-    check_balance()
+    try:
+        choice = int(input("Выберите вариант ответа (введите номер): "))
+        selected_answer = answers[choice - 1]
+        if selected_answer == correct_answer:
+            print("Правильно! Начальник доволен. Вы получаете бонус 100 000 тысяч.")
+            money += 100000
+            bank_balance += 100000
+        else:
+            print("Неправильно! Начальник разочарован. Вы получаете штраф в размере 50 000 тысяч.")
+            penalties += 50000
+            bank_balance -= 50000
+        print(f"Ваш баланс: {bank_balance} тысяч.")
+        actions_count += 1
+        check_balance()
+    except (ValueError, IndexError):
+        print("Некорректный ввод. Пожалуйста, выберите правильный вариант ответа.")
+        ask_boss_question()
+
 # Функция для покупок в магазине
 def go_shopping():
     global money
@@ -74,19 +71,23 @@ def go_shopping():
     print("Товары в магазине:")
     for i, item in enumerate(shop_items, start=1):
         print(f"{i}. {item} - {shop_items[item]} тысяч.")
-    choice = int(input("Выберите товар (введите номер): "))
-    selected_item = list(shop_items.keys())[choice - 1] if 1 <= choice <= len(shop_items) else None
-    if selected_item and money >= shop_items[selected_item]:
-        print(f"Вы купили {selected_item} за {shop_items[selected_item]} тысяч.")
-        money -= shop_items[selected_item]
-        bank_balance -= shop_items[selected_item]
-        print(f"Ваш баланс: {bank_balance} тысяч.")
-    else:
-        print("Неверный выбор товара или недостаточно средств. Вы получаете штраф в размере 20 000 тысяч.")
-        penalties += 20000
-        bank_balance -= 20000
-    actions_count += 1
-    check_balance()
+    try:
+        choice = int(input("Выберите товар (введите номер): "))
+        selected_item = list(shop_items.keys())[choice - 1]
+        if selected_item and money >= shop_items[selected_item]:
+            print(f"Вы купили {selected_item} за {shop_items[selected_item]} тысяч.")
+            money -= shop_items[selected_item]
+            bank_balance -= shop_items[selected_item]
+            print(f"Ваш баланс: {bank_balance} тысяч.")
+        else:
+            print("Неверный выбор товара или недостаточно средств. Вы получаете штраф в размере 20 000 тысяч.")
+            penalties += 20000
+            bank_balance -= 20000
+        actions_count += 1
+        check_balance()
+    except (ValueError, IndexError):
+        print("Некорректный ввод. Пожалуйста, выберите правильный товар.")
+        go_shopping()
 
 # Функция для прогнозирования движения цен на рынке
 def trade_stock():
@@ -94,22 +95,143 @@ def trade_stock():
     global bank_balance
     global actions_count
     print("Вы решили поработать трейдером.")
-    # Генерация случайного графика цен
     prices = [random.randint(3, 15) for _ in range(10)]
     draw_stock_chart(prices)
-    guess = input("Куда пойдут цены? Вверх (в), вниз (н) или останутся на месте (о)? ").lower()
-    # Имитация движения цен
-    random.shuffle(prices)
-    if (guess == 'в' and prices[0] > prices[-1]) or (guess == 'н' and prices[0] < prices[-1]) or (guess == 'о' and prices[0] != prices[-1]):
-        print("Вы угадали! Цены двинулись в вашу сторону. Вы заработали 150 000 тысяч.")
-        money += 150000
-        bank_balance += 150000
-    else:
-        print("К сожалению, цены пошли в другую сторону. Вы теряете 100 000 тысяч.")
-        money -= 100000
-        bank_balance -= 100000
-    actions_count += 1
-    check_balance()
+    try:
+        guess = input("Куда пойдут цены? Вверх (в), вниз (н) или останутся на месте (о)? ").lower()
+        random.shuffle(prices)
+        if (guess == 'в' and prices[0] > prices[-1]) or (guess == 'н' and prices[0] < prices[-1]) or (guess == 'о' and prices[0] != prices[-1]):
+            print("Вы угадали! Цены двинулись в вашу сторону. Вы заработали 150 000 тысяч.")
+            money += 150000
+            bank_balance += 150000
+        else:
+            print("К сожалению, цены пошли в другую сторону. Вы теряете 100 000 тысяч.")
+            money -= 100000
+            bank_balance -= 100000
+        actions_count += 1
+        check_balance()
+    except ValueError:
+        print("Некорректный ввод. Пожалуйста, выберите 'в', 'н' или 'о'.")
+        trade_stock()
+
+# Функция для подработки курьером
+def work_as_courier():
+    global money
+    global bank_balance
+    global actions_count
+    print("Вы решили подработать курьером.")
+    num1 = random.randint(1, 10)
+    num2 = random.randint(1, 10)
+    correct_answer = num1 + num2
+    print(f"Сколько будет {num1} + {num2}?")
+    try:
+        user_answer = int(input("Введите ответ: "))
+        if user_answer == correct_answer:
+            print("Правильно! Вы заработали 1000 рублей.")
+            money += 1000
+            bank_balance += 1000
+        else:
+            print("Неправильно! Вы потеряли 1000 рублей.")
+            money -= 1000
+            bank_balance -= 1000
+        actions_count += 1
+        check_balance()
+    except ValueError:
+        print("Некорректный ввод. Пожалуйста, введите целое число.")
+        work_as_courier()
+
+# Функция для подработки на заводе
+def work_at_factory():
+    global money
+    global bank_balance
+    global actions_count
+    print("Вы решили подработать на заводе.")
+    num1 = random.randint(1, 5)
+    num2 = random.randint(1, 5)
+    correct_answer = num1 * num2
+    print(f"Сколько будет {num1} * {num2}?")
+    try:
+        user_answer = int(input("Введите ответ: "))
+        if user_answer == correct_answer:
+            print("Правильно! Вы заработали 500 рублей.")
+            money += 1000
+            bank_balance += 1000
+        else:
+            print("Неправильно! Вы потеряли 500 рублей.")
+            money -= 1000
+            bank_balance -= 1000
+        actions_count += 1
+        check_balance()
+    except ValueError:
+        print("Некорректный ввод. Пожалуйста, введите целое число.")
+        work_at_factory()
+
+# Функция для подработки кладменом
+def work_as_storekeeper():
+    global money
+    global bank_balance
+    global actions_count
+    print("Вы решили подработать кладменом.")
+    num1 = random.randint(1, 20)
+    num2 = random.randint(1, 20)
+    correct_answer = num1 - num2
+    print(f"Сколько будет {num1} - {num2}?")
+    try:
+        user_answer = int(input("Введите ответ: "))
+        if user_answer == correct_answer:
+            print("Правильно! Вы заработали 2000 рублей.")
+            money += 2000
+            bank_balance += 2000
+        else:
+            print("Вы проиграли! Вас посадили на пожизенный срок((")
+            exit()
+    except ValueError:
+        print("Некорректный ввод. Пожалуйста, введите целое число.")
+        work_as_storekeeper()
+
+# Функция для подработок
+def do_side_job():
+    print("Выберите способ подработки:")
+    print("1. Подработать курьером (заработок: +1000 рублей)")
+    print("2. Подработать на заводе (заработок: +500 рублей)")
+    print("3. Подработать кладменом (заработок: +2000 рублей)")
+    try:
+        choice = int(input("Введите номер выбранного способа: "))
+        if choice == 1:
+            return work_as_courier()
+        elif choice == 2:
+            return work_at_factory()
+        elif choice == 3:
+            return work_as_storekeeper()
+        else:
+            print("Некорректный ввод. Пожалуйста, выберите снова.")
+            return do_side_job()
+    except ValueError:
+        print("Некорректный ввод. Пожалуйста, введите целое число.")
+        return do_side_job()
+
+# Функция для отображения графика в текстовом формате
+def draw_stock_chart(prices):
+    print("График цен:")
+    for price in prices:
+        print("#" * price)
+    print("-" * len(prices) * 2)  # Ось X
+    print(" " + " ".join(map(str, range(1, len(prices) + 1))))  # Подписи оси X
+
+# Функция для проверки баланса и количества действий
+def check_balance():
+    global money
+    global penalties
+    global taxes
+    global actions_count
+    global bank_balance
+    if actions_count % 5 == 0 and actions_count > 0:
+        pay_taxes()
+    if bank_balance < 0:
+        print("У вас отрицательный баланс. Вы проиграли.")
+        print(f"Ваш итоговый баланс: {bank_balance} тысяч.")
+        exit()
+    print(f"Ваш баланс: {bank_balance} тысяч.")
 
 # Функция для оплаты налогов
 def pay_taxes():
@@ -131,6 +253,7 @@ def pay_taxes():
         bank_balance -= 20000
     actions_count += 1
 
+# Функция для оставания дома
 def stay_at_home():
     global money
     global bank_balance
@@ -139,103 +262,7 @@ def stay_at_home():
     bank_balance -= 20000
     actions_count += 1
     check_balance()
-
-# Функция для проверки баланса и количества действий
-def check_balance():
-    global money
-    global penalties
-    global taxes
-    global actions_count
-    global bank_balance
-    if actions_count % 5 == 0 and actions_count > 0:
-        pay_taxes()
-    if bank_balance < 0:
-        print("У вас отрицательный баланс. Вы проиграли.")
-        print(f"Ваш итоговый баланс: {bank_balance} тысяч.")
-        exit()
-    print(f"Ваш баланс: {bank_balance} тысяч.")
-
-# Функция для подработки курьером
-def work_as_courier():
-    global money
-    global bank_balance
-    global actions_count
-    print("Вы решили подработать курьером.")
-    num1 = random.randint(1, 10)
-    num2 = random.randint(1, 10)
-    correct_answer = num1 + num2
-    print(f"Сколько будет {num1} + {num2}?")
-    user_answer = int(input("Введите ответ: "))
-    if user_answer == correct_answer:
-        print("Правильно! Вы заработали 1000 рублей.")
-        money += 1000
-        bank_balance += 1000
-    else:
-        print("Неправильно! Вы потеряли 1000 рублей.")
-        money -= 1000
-        bank_balance -= 1000
-    actions_count += 1
-    check_balance()
-
-# Функция для подработки на заводе
-def work_at_factory():
-    global money
-    global bank_balance
-    global actions_count
-    print("Вы решили подработать на заводе.")
-    num1 = random.randint(1, 5)
-    num2 = random.randint(1, 5)
-    correct_answer = num1 * num2
-    print(f"Сколько будет {num1} * {num2}?")
-    user_answer = int(input("Введите ответ: "))
-    if user_answer == correct_answer:
-        print("Правильно! Вы заработали 500 рублей.")
-        money += 1000
-        bank_balance += 1000
-    else:
-        print("Неправильно! Вы потеряли 500 рублей.")
-        money -= 1000
-        bank_balance -= 1000
-    actions_count += 1
-    return check_balance()
-
-# Функция для подработки кладменом
-def work_as_storekeeper():
-    global money
-    global bank_balance
-    global actions_count
-    print("Вы решили подработать кладменом.")
-    num1 = random.randint(1, 20)
-    num2 = random.randint(1, 20)
-    correct_answer = num1 - num2
-    print(f"Сколько будет {num1} - {num2}?")
-    user_answer = int(input("Введите ответ: "))
-    if user_answer == correct_answer:
-        print("Правильно! Вы заработали 2000 рублей.")
-        money += 2000
-        bank_balance += 2000
-    else:
-        print("Вы проиграли! Вас посадили на пожизенный срок((")
-        exit()
-
-# Функция для подработок
-def do_side_job():
-    print("Выберите способ подработки:")
-    print("1. Подработать курьером (заработок: +1000 рублей)")
-    print("2. Подработать на заводе (заработок: +500 рублей)")
-    print("3. Подработать кладменом (заработок: +2000 рублей)")
-    choice = int(input("Введите номер выбранного способа: "))
-    if choice == 1:
-        return work_as_courier()
-    elif choice == 2:
-        return work_at_factory()
-    elif choice == 3:
-        return work_as_storekeeper()
-    else:
-        print("Некорректный ввод. Пожалуйста, выберите снова.")
-        return do_side_job()
-
-# Главная функция игры
+    # Главная функция игры
 def main():
     global money
     global taxes
@@ -269,4 +296,7 @@ def main():
 
 # Защита от выполнения кода при импорте
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"Произошла ошибка: {e}. Пожалуйста, перезапустите игру и введите корректные данные.")
