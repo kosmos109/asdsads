@@ -1,103 +1,237 @@
-# -*- coding: cp1251 -*-
-#python (практическая)
-import math 
+using System;
+using System.IO;
+using Newtonsoft.Json;
+using System.Xml.Serialization;
 
-while True:
-    print ("Выберите операцию: ")
-    print ("1. Сложение (+); ")
-    print ("2. Вычитание (-); ")
-    print ("3. Умножение (*); ")
-    print ("4. Деление (/); ")
-    print ("5. Возведение в степень (**); ")
-    print ("6. Корень (sqrt); ")
-    print ("7. Факториал (fact); ")
-    print ("8. Синус (sin); ")
-    print ("9. Косинус (cos); ")
-    print ("10. Тангенс (tan); ")
-    print ("0. Выход из программы (exit). ")
+[Serializable]
+public class Figure
+{
+    public string Name { get; set; }
+    public int Width { get; set; }
+    public int Height { get; set; }
 
-    a = input ("Введите номер операции: ")
+    public Figure(string name, int width, int height)
+    {
+        Name = name;
+        Width = width;
+        Height = height;
+    }
 
-    if a == "0":
-        break
+    public Figure()
+    {
+        // Пустой конструктор для сериализации/десериализации 
+    }
+}
 
-    if a in ["1", "2", "3", "4"]:
-        while True:
-            num1 = input ("Введите первое число: ")
-            num2 = input ("Введите второе число: ")
+public class FileReaderWriter
+{
+    public Figure[] LoadData(string filePath)
+    {
+        string extension = Path.GetExtension(filePath).ToLower();
+        Figure[] figures = null;
 
-            if num1.replace(".", "", 1).isdigit() and num2.replace(".", "", 1).isdigit():
-                num1 = float(num1)
-                num2 = float(num2)
-                break
-            else:
-                print ("Ошибка")
+        try
+        {
+            if (extension == ".txt")
+            {
+                figures = LoadFromTxt(filePath);
+            }
+            else if (extension == ".json")
+            {
+                figures = LoadFromJson(filePath);
+            }
+            else if (extension == ".xml")
+            {
+                figures = LoadFromXml(filePath);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+        }
 
-        if a == "1":
-            b = num1 + num2
-            print ("Ответ: ", b)
+        return figures;
+    }
 
-        if a == "2":
-            b = num1 - num2
-            print ("Ответ: ", b)
+    private Figure[] LoadFromTxt(string filePath)
+    {
+        string[] lines = File.ReadAllLines(filePath);
+        Figure[] figures = new Figure[lines.Length];
+        for (int i = 0; i < lines.Length; i++)
+        {
+            string[] parts = lines[i].Split(',');
+            string name = parts[0].Split(':')[1].Trim();
+            int width = int.Parse(parts[1].Split(':')[1].Trim());
+            int height = int.Parse(parts[2].Split(':')[1].Trim());
+            figures[i] = new Figure(name, width, height);
+        }
+        return figures;
+    }
 
-        if a == "3":
-            b = num1 * num2
-            print ("Ответ: ", b)
+    private Figure[] LoadFromJson(string filePath)
+    {
+        string json = File.ReadAllText(filePath);
+        return JsonConvert.DeserializeObject<Figure[]>(json);
+    }
 
-        if a == "4":
-            if num2 == 0:
-                print ("Ошибка, делить на 0 нельзя")
-            else:
-                b = num1 / num2
-                print ("Ответ: ", b)
+    private Figure[] LoadFromXml(string filePath)
+    {
+        XmlSerializer serializer = new XmlSerializer(typeof(Figure[]));
+        using (FileStream fileStream = new FileStream(filePath, FileMode.Open))
+        {
+            return (Figure[])serializer.Deserialize(fileStream);
+        }
+    }
 
-    elif a in ["5", "6", "7", "8", "9", "10"]:
-        while True:
-            num3 = input ("Введите число: ")
+    public void SaveData(string filePath, Figure[] figures)
+    {
+        string extension = Path.GetExtension(filePath).ToLower();
 
-            if num3.replace(".", "", 1).isdigit():
-                num3 = float(num3)
-                break
-            else:
-                print ("Ошибка")
+        try
+        {
+            if (extension == ".txt")
+            {
+                SaveToTxt(filePath, figures);
+            }
+            else if (extension == ".json")
+            {
+                SaveToJson(filePath, figures);
+            }
+            else if (extension == ".xml")
+            {
+                SaveToXml(filePath, figures);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка: {ex.Message}");
+        }
+    }
 
-        if a == "5":
-            c = input ("Введите степень: ")
+    private void SaveToTxt(string filePath, Figure[] figures)
+    {
+        using (StreamWriter writer = new StreamWriter(filePath))
+        {
+            foreach (var figure in figures)
+            {
+                writer.WriteLine($"Name: {figure.Name}, Width: {figure.Width}, Height: {figure.Height}");
+            }
+        }
+    }
 
-            if c.replace(".", "", 1).isdigit():
-               c = float(c)
-               b = math.pow(num3, c)
-               print ("Результат: ", b)
-            else:
-                print ("Ошибка ввода степени")
+    private void SaveToJson(string filePath, Figure[] figures)
+    {
+        string json = JsonConvert.SerializeObject(figures);
+        File.WriteAllText(filePath, json);
+    }
 
-        elif a == "6":
-            if num3 < 0:
-                print ("Ошибка, недопускается корень из отрицательного числа")
-            else:
-                c = math.sqrt(num3)
-                print("Ответ: ", c)
+    private void SaveToXml(string filePath, Figure[] figures)
+    {
+        XmlSerializer serializer = new XmlSerializer(typeof(Figure[]));
+        using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+        {
+            serializer.Serialize(fileStream, figures);
+        }
+    }
+}
 
-        elif a == "7":
-            if num3 < 0:
-                print ("Ошибка, недопускается факториал отрицательного числа")
-            else: 
-                c = math.factorial(int(num3))
-                print ("Ответ: ", c)
-
-        elif a == "8":
-            c = math.sin(math.radians(num3))
-            print ("Ответ (в радианах): ", c)
-
-        elif a == "9":
-            c = math.cos(math.radians(num3))
-            print ("Ответ (в радианах): ", c)
-
-        elif a == "10":
-            c = math.tan(math.radians(num3))
-            print ("Ответ (в радианах): ", c)
-    else:
-        print ("Ошибка, выберите операцию")
-
-    print ()
+class Program
+{
+    static void Main(string[] args)
+    {
+        Console.WriteLine("Добро пожаловать в текстовый конвертер:"); 
+        Console.WriteLine("Перед тем как вы начнете вставлять свой путь до файла, учтите, что код очень хрупкий");
+        Console.WriteLine("Чтобы путь нашелся нужно без пробелов его вставить (в начале пробелы обычно)");
+        Console.WriteLine("Ну и вставьте свой путь до файла");
+        string filePath = Console.ReadLine();
+        if (File.Exists(filePath))
+        {
+            FileReaderWriter fileReaderWriter = new FileReaderWriter();
+            Figure[] figures = fileReaderWriter.LoadData(filePath);
+            while (true)
+            {
+                Console.Clear(); 
+                Console.WriteLine("Данные:");
+                foreach (var figure in figures)
+                {
+                    Console.WriteLine($"Name: {figure.Name}, Width: {figure.Width}, Height: {figure.Height}");
+                }
+                Console.WriteLine("Menu:");
+                Console.WriteLine("1. Добавить данные"); 
+                Console.WriteLine("2. Изменить данные");
+                Console.WriteLine("3. Удалить данные");
+                Console.WriteLine("4. Сохранить данные");
+                ConsoleKeyInfo key = Console.ReadKey();
+                if (key.Key == ConsoleKey.D1 || key.Key == ConsoleKey.NumPad1)
+                {
+                    Console.WriteLine("\nВведите фигуру:"); string name = Console.ReadLine();
+                    Console.WriteLine("Введите длину:"); int width = int.Parse(Console.ReadLine());
+                    Console.WriteLine("Введите высоту:"); int height = int.Parse(Console.ReadLine());
+                    Figure newFigure = new Figure(name, width, height);
+                    Array.Resize(ref figures, figures.Length + 1); figures[figures.Length - 1] = newFigure;
+                }
+                else if (key.Key == ConsoleKey.D2 || key.Key == ConsoleKey.NumPad2)
+                {
+                    Console.WriteLine("\nВведите номер столбца для редактирования");
+                    int index = int.Parse(Console.ReadLine());
+                    if (index >= 0 && index < figures.Length)
+                    {
+                        Console.WriteLine("\nВведите фигуру:"); string newName = Console.ReadLine();
+                        Console.WriteLine("Введите длину:"); int newWidth = int.Parse(Console.ReadLine());
+                        Console.WriteLine("Введите высоту:"); int newHeight = int.Parse(Console.ReadLine());
+                        figures[index].Name = newName;
+                        figures[index].Width = newWidth; figures[index].Height = newHeight;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Неправильный ввод");
+                    }
+                }
+                else if (key.Key == ConsoleKey.D3 || key.Key == ConsoleKey.NumPad3)
+                {
+                    Console.WriteLine("\nВведите номер столбца для удаления:"); int index = int.Parse(Console.ReadLine());
+                    if (index >= 0 && index < figures.Length)
+                    {
+                        figures = figures.Where((source, idx) => idx != index).ToArray();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Неправильный ввод.");
+                    }
+                }
+                else if (key.Key == ConsoleKey.D4 || key.Key == ConsoleKey.NumPad4)
+                {
+                    Console.WriteLine("Сохранить в формате:"); 
+                    Console.WriteLine("1. TXT");
+                    Console.WriteLine("2. JSON"); 
+                    Console.WriteLine("3. XML");
+                    ConsoleKeyInfo formatKey = Console.ReadKey();
+                    string saveFilePath = filePath; if (formatKey.Key == ConsoleKey.D1 || formatKey.Key == ConsoleKey.NumPad1)
+                    {
+                        saveFilePath = Path.ChangeExtension(saveFilePath, ".txt");
+                    }
+                    else if (formatKey.Key == ConsoleKey.D2 || formatKey.Key == ConsoleKey.NumPad2)
+                    {
+                        saveFilePath = Path.ChangeExtension(saveFilePath,".json");
+                    }
+                    else if (formatKey.Key == ConsoleKey.D3 || formatKey.Key == ConsoleKey.NumPad3)
+                    {
+                        saveFilePath = Path.ChangeExtension(saveFilePath, ".xml");
+                    }
+                    else
+                    {
+                        Console.WriteLine("\nНеправильный ввод.");
+                        continue;
+                    }
+                    fileReaderWriter.SaveData(saveFilePath, figures);
+                    Console.WriteLine($"\nФайл сохранился в {saveFilePath}"); 
+                    break;
+                }
+            }
+        }
+        else
+        {
+            Console.WriteLine("Файл не найден.");
+        }
+    }
+}
