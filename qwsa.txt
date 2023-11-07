@@ -1,113 +1,125 @@
 using System;
-
-class Program
+using System.IO;
+public static class ArrowKeysHandler
 {
-    static void Main(string[] args)
+    private static int cursorTop = 0;
+    public static ConsoleKeyInfo ReadKey()
     {
-        int choice = 0;
-
-        while (choice != 4)
+        var key = Console.ReadKey(intercept: true).Key;
+        while (key != ConsoleKey.UpArrow && key != ConsoleKey.DownArrow && key != ConsoleKey.Enter && key != ConsoleKey.Escape)
         {
-            Console.WriteLine("Меню:");
-            Console.WriteLine("1. Игра 'Угадай число'");
-            Console.WriteLine("2. Таблица умножения");
-            Console.WriteLine("3. Вывод делителей числа");
-            Console.WriteLine("4. Выйти");
-            Console.Write("Введите число: ");
-
-            choice = Convert.ToInt32(Console.ReadLine());
-
-            switch (choice)
+            key = Console.ReadKey(intercept: true).Key;
+        }
+        return new ConsoleKeyInfo('\0', key, shift: false, alt: false, control: false);
+    }
+    public static void SetCursorPos(int top)
+    {
+        cursorTop = top;
+        Console.SetCursorPosition(0, cursorTop);
+    }
+    public static int ReadCursorPos()
+    {
+        return cursorTop;
+    }
+}
+public static class FileExplorer
+{
+    private static string currentPath;
+    public static void Run()
+    {
+        DriveInfo[] drives = DriveInfo.GetDrives();
+        int selectedDriveIndex = 0; do
+        {
+            Console.Clear();
+            ShowDriveList(drives, selectedDriveIndex); var key = ArrowKeysHandler.ReadKey();
+            if (key.Key == ConsoleKey.UpArrow)
             {
-                case 1:
-                    chiclo();
-                    break;
-                case 2:
-                    tabl();
-                    break;
-                case 3:
-                    vivod();
-                    break;
-                case 4:
-                    Console.WriteLine("Выход из программы");
-                    break;
-                default:
-                    Console.WriteLine("Неправильный выбор");
-                    break;
+                selectedDriveIndex = Math.Max(0, selectedDriveIndex - 1);
             }
-
-            Console.WriteLine();
+            else if (key.Key == ConsoleKey.DownArrow)
+            {
+                selectedDriveIndex = Math.Min(drives.Length - 1, selectedDriveIndex + 1);
+            }
+            else if (key.Key == ConsoleKey.Enter)
+            {
+                currentPath = drives[selectedDriveIndex].RootDirectory.FullName;
+                ExploreDirectory();
+            }
+        } while (true);
+    }
+    private static void ShowDriveList(DriveInfo[] drives, int selectedIndex)
+    {
+        Console.WriteLine("Доступные диски:"); for (int i = 0; i < drives.Length; i++)
+        {
+            Console.WriteLine($"{(i == selectedIndex ? "--> " : "  ")}{drives[i].Name} - Свободно: {FormatBytes(drives[i].AvailableFreeSpace)} / Занято: {FormatBytes(drives[i].TotalSize - drives[i].AvailableFreeSpace)}");
+        }
+        Console.WriteLine("\nВыберите диск и нажмите enter для продолжения.");
+        Console.WriteLine("Чтоыб выйти нажмите escape.");
+    }
+    private static void ExploreDirectory()
+    {
+        ConsoleKeyInfo key;
+        do
+        {
+            Console.Clear(); ShowContent();
+            key = ArrowKeysHandler.ReadKey();
+            if (key.Key == ConsoleKey.Enter)
+            {
+                string selectedItem = GetSelectedItem(); string selectedPath = Path.Combine(currentPath, selectedItem);
+                if (Directory.Exists(selectedPath))
+                {
+                    currentPath = selectedPath;
+                }
+            }
+            else if (key.Key == ConsoleKey.Escape && currentPath.Length > 3)
+            {
+                currentPath = Directory.GetParent(currentPath).FullName;
+            }
+        } while (key.Key != ConsoleKey.Escape);
+    }
+    private static void ShowContent()
+    {
+        Console.WriteLine($"Текущая директория: {currentPath}");
+        Console.WriteLine("Содержимое:");
+        string[] items = Directory.GetFileSystemEntries(currentPath);
+        for (int i = 0; i < items.Length; i++)
+        {
+            string itemName = Path.GetFileName(items[i]); 
+            string itemType = (File.GetAttributes(items[i]) & FileAttributes.Directory) == FileAttributes.Directory ? "Папка" : GetFileType(items[i]);
+            string itemCreationTime = File.GetCreationTime(items[i]).ToString("dd.MM.yyyy HH:mm:ss"); string itemSize = (File.GetAttributes(items[i]) & FileAttributes.Directory) == FileAttributes.Directory ? "" : FormatBytes(new FileInfo(items[i]).Length);
+            Console.WriteLine($"{(i == ArrowKeysHandler.ReadCursorPos() ? "--> " : "  ")}{itemName,-50} - Тип: {itemType,-10} | Дата создания: {itemCreationTime,-20} | Размер: {itemSize,-15}");
         }
     }
-
-    static void chiclo()
+    private static string GetSelectedItem()
     {
-        Random random = new Random();
-        int randomnumb = random.Next(0, 101);
-
-        Console.WriteLine("Игра 'Угадай число'");
-        Console.WriteLine("Я загадал число от 0 до 100, сможете угадать?");
-
-        int defchic = -1;
-
-        while (defchic != randomnumb)
-        {
-            Console.Write("Введите число: ");
-            defchic = Convert.ToInt32(Console.ReadLine());
-
-            if (defchic < randomnumb)
-            {
-                Console.WriteLine("Загаданное число больше");
-            }
-            else if (defchic > randomnumb)
-            {
-                Console.WriteLine("Загаданное число меньше");
-            }
-        }
-
-        Console.WriteLine("Поздравляю! Вы угадали число!");
+        string[] items = Directory.GetFileSystemEntries(currentPath);
+        return items.Length > 0 ?
+Path.GetFileName(items[ArrowKeysHandler.ReadCursorPos()]) : "";
     }
-
-    static void tabl()
+    private static string GetFileType(string path)
     {
-        Console.WriteLine("Таблица умножения");
-
-        int[,] table = new int[10, 10];
-
-        for (int i = 1; i <= 10; i++)
-        {
-            for (int j = 1; j <= 10; j++)
-            {
-                table[i - 1, j - 1] = i * j;
-            }
-        }
-
-        for (int i = 0; i < 10; i++)
-        {
-            for (int j = 0; j < 10; j++)
-            {
-                Console.Write(table[i, j] + "\t");
-            }
-
-            Console.WriteLine();
-        }
+        string extension = Path.GetExtension(path);
+        return string.IsNullOrEmpty(extension) ? "Неизвестный тип" : extension;
     }
-
-    static void vivod()
+    private static string FormatBytes(long bytes)
     {
-        Console.WriteLine("Вывод делителей числа");
-        Console.Write("Введите число: ");
-
-        int numb = Convert.ToInt32(Console.ReadLine());
-
-        Console.Write("Делители числа {0}: ", numb);
-
-        for (int i = 1; i <= numb; i++)
+        const int scale = 1024;
+        string[] orders = new string[] { "ГБ", "МБ", "КБ", "Байт" }; long max = (long)Math.Pow(scale, orders.Length - 1);
+        foreach (string order in orders)
         {
-            if (numb % i == 0)
+            if (bytes > max)
             {
-                Console.Write(i + " ");
+                return string.Format("{0:##.##} {1}", decimal.Divide(bytes, max), order);
             }
+            max /= scale;
+        }
+        return "0 Байт";
+    }
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Run();
         }
     }
 }
