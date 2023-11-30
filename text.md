@@ -76,8 +76,7 @@ class TypingTest
         colors = Enumerable.Repeat(ConsoleColor.White, testText.Length).ToList();
 
         Console.WriteLine("Если готовы, нажмите Enter для начала теста.");
-        Console.ReadLine(); // Ждем, пока пользователь нажмет Enter
-
+        Console.ReadLine();
         Console.Clear();
 
         stopwatch = Stopwatch.StartNew();
@@ -87,12 +86,12 @@ class TypingTest
             UpdateInputText();
             UpdateTimer();
 
-            Thread.Sleep(10); // Добавим короткую задержку для снижения нагрузки на процессор
+            Thread.Sleep(10); 
         } while (currentPosition < testText.Length && stopwatch.Elapsed.TotalSeconds < 60);
 
         stopwatch.Stop();
 
-        Console.WriteLine(); // Переход на новую строку после таймера
+        Console.WriteLine(); 
         Console.WriteLine($"Тест завершен, {userName}! Вы напечатали {correctChars} символов верно.");
 
         double elapsedTime = stopwatch.Elapsed.TotalMinutes;
@@ -114,7 +113,7 @@ class TypingTest
 
     private static void UpdateInputText()
     {
-        Console.SetCursorPosition(0, 2); // Перемещаемся в строку, где начинается текст
+        Console.SetCursorPosition(0, 2); // строка, где начинается текст
 
         for (int i = 0; i < testText.Length; i++)
         {
@@ -122,7 +121,7 @@ class TypingTest
             Console.Write(testText[i]);
         }
 
-        Console.SetCursorPosition(correctChars, 2); // Возвращаемся на текущую позицию
+        Console.SetCursorPosition(correctChars, 2); // возвращаемся на текущую позицию
 
         ConsoleKeyInfo key = Console.ReadKey(true);
         if (key.Key != ConsoleKey.Enter)
@@ -139,7 +138,7 @@ class TypingTest
     private static void UpdateTimer()
     {
         TimeSpan remainingTime = TimeSpan.FromSeconds(60) - stopwatch.Elapsed;
-        Console.SetCursorPosition(0, 4); // Позиция для таймера
+        Console.SetCursorPosition(0, 4); // таймер
         Console.WriteLine($"Таймер: {remainingTime.TotalSeconds} сек");
 
         if (remainingTime.TotalSeconds <= 0)
@@ -158,7 +157,7 @@ class TypingTest
 
     private static void DisplayResults()
     {
-        Console.WriteLine(); // Переход на новую строку после таймера
+        Console.WriteLine(); 
         Console.WriteLine($"Тест завершен, {userName}! Вы напечатали {correctChars} символов верно.");
 
         double elapsedTime = stopwatch.Elapsed.TotalMinutes;
